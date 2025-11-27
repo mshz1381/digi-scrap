@@ -1,7 +1,7 @@
 import axios from "axios";
 import fs from "fs";
 
-const URL = "https://api.digikala.com/v1/incredible-offers/products/?page=1&q=";
+const URL = "https://api.digikala.com/v1/incredible-offers/products/?page=1";
 
 async function scrape() {
   try {
@@ -13,11 +13,12 @@ async function scrape() {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
         Accept: "application/json"
       },
-      maxRedirects: 5,
-      timeout: 15000
+      maxRedirects: 10,  // افزایش تعداد redirect
+      timeout: 20000     // timeout طولانی‌تر
     });
 
     const products = response.data?.data?.products;
+
     if (!products || products.length === 0) {
       console.error("❌ هیچ محصولی دریافت نشد!");
       return; // فایل ساخته نمی‌شود
