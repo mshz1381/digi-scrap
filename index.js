@@ -5,18 +5,23 @@ const URL = "https://api.digikala.com/v1/incredible-offers/products/?page=1";
 
 async function scrape() {
   try {
-    console.log("⏳ دریافت اطلاعات از API...");
+    console.log("⏳ شروع دریافت اطلاعات از API...");
 
     // درخواست با مدیریت redirect و timeout
     const response = await axios.get(URL, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
-        Accept: "application/json"
+        Accept: "application/json",
       },
       maxRedirects: 10,
-      timeout: 20000
+      timeout: 20000,
+      validateStatus: null, // حتی اگر HTTP error بدهد، axios خطا ندهد
     });
+
+    // چاپ کامل پاسخ API برای debug
+    console.log("📦 پاسخ کامل API:");
+    console.log(JSON.stringify(response.data, null, 2));
 
     const products = response.data?.data?.products || [];
 
