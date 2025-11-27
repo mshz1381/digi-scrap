@@ -7,25 +7,28 @@ async function scrape() {
   try {
     console.log("⏳ دریافت اطلاعات از API...");
 
-    // درخواست به API با محدودیت redirect و timeout
     const response = await axios.get(URL, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36",
         Accept: "application/json"
       },
-      maxRedirects: 5,   // جلوگیری از خطای Maximum redirects
-      timeout: 15000     // 15 ثانیه انتظار برای پاسخ
+      maxRedirects: 5,
+      timeout: 15000
     });
 
-    const products = response.data.data.products || [];
+    const products = response.data?.data?.products;
+    if (!products || products.length === 0) {
+      console.error("❌ هیچ محصولی دریافت نشد!");
+      return; // فایل ساخته نمی‌شود
+    }
+
     console.log("🟢 تعداد محصولات:", products.length);
 
-    // تبدیل داده‌ها به فرمت دلخواه
     const result = products.map(p => ({
       id: p.id,
       title: p.title_fa,
-      image: p.images.main.url,
+      image: p.images.main?.url || "",
       link: "https://www.digikala.com/product/" + p.id,
       price_original: p.default_variant?.price || null,
       price_discounted:
@@ -33,21 +36,12 @@ async function scrape() {
       discount_percent: p.default_variant?.discount?.percent || 0
     }));
 
-    // ذخیره فایل products.json
-    fs.writeFileSync("products.json", JSON.stringify(result, null, 2));
+    fs.writeFileSync("./products.json", JSON.stringify(result, null, 2));
     console.log("💾 فایل products.json ذخیره شد.");
 
   } catch (err) {
-    // نمایش خطاها
-    if (err.response) {
-      console.error("❌ خطای سرور:", err.response.status, err.response.statusText);
-    } else if (err.request) {
-      console.error("❌ هیچ پاسخی از سرور دریافت نشد.");
-    } else {
-      console.error("❌ خطا:", err.message);
-    }
+    console.error("❌ خطا:", err.message);
   }
 }
 
-// اجرای تابع scrape
 scrape();
