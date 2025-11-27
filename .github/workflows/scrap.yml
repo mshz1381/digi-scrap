@@ -3,24 +3,22 @@ name: Run Digikala Scraper
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
   schedule:
-    - cron: "0 */6 * * *" # هر 6 ساعت
+    - cron: "0 */6 * * *"
 
 concurrency:
   group: digikala-scraper-main
-  cancel-in-progress: true  # فقط یک run فعال، run قبلی لغو می‌شود
+  cancel-in-progress: true   # workflow قبلی را لغو می‌کند تا این اجرا شروع شود
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PAT_TOKEN }}  # GitHub token یا PAT خودت
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -37,10 +35,6 @@ jobs:
         run: |
           git config --local user.name "github-actions"
           git config --local user.email "actions@github.com"
-          if [ -f ./products.json ]; then
-            git add ./products.json
-            git commit -m "Auto scrape update" || echo "No changes to commit"
-            git push
-          else
-            echo "❌ فایل products.json ساخته نشده، commit رد شد."
-          fi
+          git add products.json
+          git commit -m "Auto scrape update" || echo "No changes"
+          git push
